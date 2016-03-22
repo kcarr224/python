@@ -12,8 +12,8 @@ def mkdir_p(path):
     except OSError:  # Python >2.5
         print "Dir exist: " + path
 
-def ExtractBundles(archiveRootDir):
-    sourceArchives=archiveRootDir + '/' + "*.tgz"
+def ExtractBundles(archiveRootDir, type):
+    sourceArchives=archiveRootDir + '/' + type + "*.tgz"
     tgzFiles = glob.glob(sourceArchives) 
     for file in tgzFiles:
         print file
@@ -57,7 +57,7 @@ def ExtractTgz(dir, ext):
                 tar.extractall(outDir)
                 #os.remove(tgzPath)
 
-ExtractBundles(".")
+ExtractBundles(".", "PUBLIC")
 ExtractZip(".")
 ExtractTgz(".", "tar.gz")
 ExtractTgz(".", ".tgz")

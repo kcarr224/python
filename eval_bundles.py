@@ -3,6 +3,8 @@ import glob
 import os
 import tarfile
 import zipfile
+import time
+import datetime
 
 def FindBundleRootDirs(dir):
     bundleDirs = []
@@ -43,9 +45,10 @@ def AddWonW(myfile, dir):
         bcFile = open(filePath, "r")
         for line in bcFile:
             if "fdfDiscreteWeightOnWheels;\"1\"" in line:
+                line.rstrip()
                 myfile.write(line)
                 return
-        return myfile.write("WoW not found\n") 
+        return myfile.write("WoW not found") 
 
 def AddIfeService(myfile, dir):
     filePath = FindFile(dir, "bitecollector_report.log")    
@@ -67,16 +70,44 @@ def DateFromArchive(archiveName):
     print rollDate
     return rollDate
 
+def DateFromLine(value):
+    ts_epoch = float(value)
+    ts = datetime.datetime.fromtimestamp(ts_epoch).strftime('%Y-%m-%d %H:%M:%S')
+    return  ts
+
+def WriteDates(myfile, dir):
+    filePath = FindFile(dir, "bitecollector_report.log")    
+    if not filePath:
+        myfile.write("missing,missing")
+        return
+    else:
+        bcFile = open(filePath, "r")
+        firstline = True
+        for line in bcFile:
+            tags = line.split(';')
+            if len(tags) == 1:
+                continue
+
+            ts_epoch = tags[0]
+            if firstline:
+                date = DateFromLine(ts_epoch)
+                myfile.write(date)
+                myfile.write(',')
+                firstline = False
+        date = DateFromLine(ts_epoch)
+        myfile.write(date)
 
 def NewResultFile(csvFileName):
     myfile = open(csvFileName, "w")
-    myfile.write("Flight Date,PUBLIC Archive,PAX Usage File Size,Flight Summary File Size,IFE Service Available,Bite Collector WonW\n")
+    myfile.write("Flight Date,Log Start Time, Log Stop Time, PUBLIC Archive,PAX Usage File Size,Flight Summary File Size,IFE Service Available,Bite Collector WonW,Conclusion\n")
     bundleDirs = FindBundleRootDirs(".")
     for dir in bundleDirs:
         print dir
         publicArchive = FindPublicBundle(dir)
         flightDate = DateFromArchive(publicArchive)
         myfile.write(flightDate)
+        myfile.write(',')
+        WriteDates(myfile, dir)
         myfile.write(',')
         myfile.write(publicArchive)
         myfile.write(',')
