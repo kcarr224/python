@@ -119,4 +119,4 @@ def NewResultFile(csvFileName):
         myfile.write(',')
         AddWonW(myfile, dir)
 
-NewResultFile("BAG.csv")
+NewResultFile("BAP.csv")
