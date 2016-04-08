@@ -3,7 +3,7 @@ import glob
 import os
 import tarfile
 import zipfile
-
+import re
 
 
 def mkdir_p(path):
@@ -15,7 +15,9 @@ def mkdir_p(path):
 
 def ExtractBundles(archiveRootDir):
     sourceArchives=archiveRootDir + '/'  + "ziide*.tar.gz"
+    print sourceArchives
     tgzFiles = glob.glob(sourceArchives)
+    print tgzFiles
     for file in tgzFiles:
         print file
         tags=file.split('_')
@@ -32,6 +34,29 @@ def ExtractBundles(archiveRootDir):
         tar = tarfile.open(filePath)
         tar.extractall(dir)
 
+def findMatch(pattern):
+    folders = []
+    rePattern = re.compile(pattern)
+    for root, dirs, files in os.walk(".", topdown=False):
+        for name in files:
+            if rePattern.match(name):
+                print(name) 
+                print(root)
+                folders.append(root)
+    return folders
 
-ExtractBundles(".")
-
+#ExtractBundles(".")
+def WalkAndExtract():
+    pwd = os.getcwd()
+    print pwd
+    dirs = findMatch("ziide_*")
+    for dir in dirs:
+        print dir
+        os.chdir(dir)
+        print os.getcwd()
+        print "call extract"
+        ExtractBundles(".")
+        os.chdir(pwd)
+        print pwd
+    
+WalkAndExtract()
